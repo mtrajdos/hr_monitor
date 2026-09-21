@@ -4,7 +4,14 @@ Prototype for reading heart-rate data from a Garmin Forerunner 55 over Bluetooth
 
 ## Current status
 
-The first version is a **Bluetooth connector**: a Python scanner (`scan.py`) that uses [Bleak](https://github.com/hbldh/bleak) to find nearby BLE devices, print name, address, signal strength, and advertised services. The next step on this path is connecting to the watch and reading the Heart Rate service when it is exposed.
+The first version is a **Bluetooth connector** that scans for nearby BLE devices and stops when it finds a **Forerunner 55**.
+
+| File | Role |
+| --- | --- |
+| `main.py` | Entry point; runs the async scan |
+| `scanner.py` | BLE discovery via [Bleak](https://github.com/hbldh/bleak); prints devices and returns the Forerunner 55 when found |
+
+The next step is connecting to the watch and reading the Heart Rate service when it is exposed.
 
 ## Direction
 
@@ -28,7 +35,7 @@ If the watch does not stream HR over BLE, the UI will still be built, but the li
 
 ```powershell
 python -m pip install bleak
-python scan.py
+python main.py
 ```
 
-Keep the USB adapter plugged in and Bluetooth enabled. The scan lasts 10 seconds.
+Keep the USB adapter plugged in and Bluetooth enabled. The scan lasts up to 10 seconds and exits early if a Forerunner 55 is found.
