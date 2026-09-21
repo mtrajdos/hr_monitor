@@ -21,6 +21,4 @@ async def scan_for_devices():
         print(f"Found device: \nName: {name}")
 
         if name == "Forerunner 55":
-            print("Forerunner 55 found!")
-            print(f"Address: {device.address}")
             return device
