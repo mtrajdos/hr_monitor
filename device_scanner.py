@@ -1,10 +1,6 @@
-import asyncio
-
-# Class to scan for Bluetooth devices
 from bleak import BleakScanner
 
-
-async def main():
+async def scan_for_devices():
     print("Scanning for Bluetooth devices for 10 seconds...")
 
     # Wait until the scanner finishes, then store whatever devices it found
@@ -30,8 +26,3 @@ async def main():
         print(f"Signal: {advertisement.rssi} dBm")
         # UUIDs the device advertised; heart-rate monitors typically include 0000180d-...
         print(f"Advertised services: {advertisement.service_uuids}")
-
-
-# This is true only when the file is ran directly
-if __name__ == "__main__":
-    asyncio.run(main())
