@@ -18,11 +18,9 @@ async def scan_for_devices():
         # Prefer the name from the advertisement, then the device object, else a placeholder
         name = advertisement.local_name or device.name or "(unnamed)"
 
-        print(f"\nName: {name}")
+        print(f"Found device: \nName: {name}")
 
-        # Identifying MAC Address or Windows UUID
-        print(f"Address: {device.address}")
-        # RSSI (Received Signal Strength Indicator) - Signal strength in dBm, closer to 0 means stronger/nearer
-        print(f"Signal: {advertisement.rssi} dBm")
-        # UUIDs the device advertised; heart-rate monitors typically include 0000180d-...
-        print(f"Advertised services: {advertisement.service_uuids}")
+        if name == "Forerunner 55":
+            print("Forerunner 55 found!")
+            print(f"Address: {device.address}")
+            return device
