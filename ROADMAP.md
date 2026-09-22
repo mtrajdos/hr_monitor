@@ -9,21 +9,22 @@ Each phase ends with testable vertical slices.
 
 Each notify becomes one row:
 
-| recorded_at (timestamp) | bpm |
-| ----------------------- | --- |
-| 2026-09-22 12:44:03     | 72  |
-| 2026-09-22 12:44:04     | 73  |
-| …                       | …   |
+| timestamp (receive time) | bpm |
+| ------------------------ | --- |
+| 22-Sep-26 13:42:46       | 74  |
+| 22-Sep-26 13:42:47       | 74  |
+| …                        | …   |
 
-A **recording window** (e.g. 12:44–12:48 on 22/09/2026) will be displayed through SQL queries, e.g. :
+A **recording window** (e.g. 12:44–12:48 on 22/09/2026) will be displayed through SQL queries, e.g.:
 
 ```sql
-SELECT recorded_at, bpm
+SELECT timestamp, bpm
 FROM hr_readings
-WHERE recorded_at >= '2026-09-22 12:44:00'
-  AND recorded_at <  '2026-09-22 12:48:00'
-ORDER BY recorded_at;
+WHERE timestamp >= '...' AND timestamp < '...'
+ORDER BY timestamp;
 ```
+
+(Column is currently named `timestamp`; prefer ISO/`recorded_at` later if we tighten the schema.)
 
 Optionally group rows into **sessions** (one BLE connect run = one window). Same idea, cleaner browsing.
 
@@ -31,32 +32,46 @@ Optionally group rows into **sessions** (one BLE connect run = one window). Same
 
 ## Done
 
+### Phase 0 — BLE collector
+
 - [x] Scan for Forerunner 55  
 - [x] Connect with Bleak  
-- [x] Subscribe to HR Measurement notifications  
+- [x] Subscribe to HR Measurement notifications (`start_notify` once)  
 - [x] Parse bytes → BPM and print in a loop  
+- [x] Clean shutdown (`stop_notify` + disconnect on Ctrl+C)  
 
-**Current files:** `main.py`, `scanner.py`, `connection.py`, `hr_listener.py`
+### Phase 1 — Persist timestamped readings (mostly done)
+
+- [x] SQLite storage (`data/MT_data.db`, gitignored)  
+- [x] `collector/storage_handler.py` — `set_row(timestamp, bpm)` + `commit`  
+- [x] Save on each reading from `hr_listener`  
+- [x] Schema `db/schema.sql` — `hr_readings(sample_id, timestamp, bpm)`  
+- [x] Data survives process exit (reopen DB → rows still there)  
+- [ ] CLI/script: print all readings between two local times (`scripts/query_window.py`)  
+- [ ] README: short “How data is stored” section  
+
+### Scaffolding
+
+- [x] Target folders: `collector/`, `db/`, `api/`, `web/`, `tests/`, `scripts/`, `data/`  
+- [x] Modules moved into `collector/`; schema in `db/`  
+- [x] `.gitignore` for `__pycache__/`, `*.db`, wal/shm sidecars  
+- [x] README project structure + link to this roadmap  
+
+**Layout now:**
+
+```text
+main.py
+collector/   scanner, connection, hr_listener, storage_handler
+db/          schema.sql
+data/        MT_data.db (local only)
+api/, web/, tests/, scripts/   (placeholders)
+```
 
 ---
 
-## Phase 1 — Persist timestamped readings (local, minimal)
+## Next up
 
-**Goal:** Stop losing data when the terminal closes. Every BPM is saved with a timestamp.
-
-**Deliverables**
-
-1. Choose first storage: **SQLite file** (zero install) → later migrate same schema to PostgreSQL.  
-2. Implement `storage_handler.py`: `save_reading(recorded_at, bpm)`.  
-3. On each notify in `hr_listener` / `main`, call save.  
-4. Table roughly: `hr_readings(id, recorded_at, bpm)`.  
-5. Functional SQL query: “print all readings between two local times.”  
-
-**Done when:** You run a session, quit, reopen DB, and still see that day’s points for a graph.
-
-**Docs:** Short “How data is stored” section in README.
-
-**New pieces only:** `storage_handler.py`, `hr_monitor.db` (gitignored), `scripts/query_window.py`.
+Finish Phase 1 leftovers (query script + README storage note), then **Phase 2 — Sessions / time windows**.
 
 ---
 
@@ -109,7 +124,7 @@ Optionally group rows into **sessions** (one BLE connect run = one window). Same
 
 **Done when:** Browser or `curl` gets graph-ready JSON for a window.
 
-**New pieces:** `api/` (small), `tests/`.
+**New pieces:** fill `api/`, `tests/`.
 
 ---
 
@@ -125,7 +140,7 @@ Optionally group rows into **sessions** (one BLE connect run = one window). Same
 
 **Done when:** You can demo a recording visually without explaining SQL.
 
-**New pieces:** `web/` (keep thin).
+**New pieces:** fill `web/`.
 
 ---
 
@@ -137,7 +152,13 @@ Optionally group rows into **sessions** (one BLE connect run = one window). Same
 
 1. `Dockerfile` for API; Compose: `postgres` + `api`.  
 2. GitHub Actions: install deps → pytest on push.  
-3. README: architecture diagram (text), how to run collector vs API.  
-4. `.env.example`, clear gitignore (no secrets, no huge DB dumps).  
+3. README: how to run collector vs API.  
+4. `.env.example`, keep gitignore tight (no secrets, no DB dumps).  
 
 **Done when:** Fresh clone + Compose instructions work for the API/DB part (collector may stay “on your PC with the USB dongle”).
+
+---
+
+## Phase 7 — Public demo (cheap hosting)
+
+Deploy API + DB (and/or sample data); collector stays on the PC with the watch. See earlier plan notes in chat / README Direction.
