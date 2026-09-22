@@ -11,13 +11,16 @@ async def main():
 
     if device is not None:
         print(f"Device found! Connecting to {device}...")
-        async with BleakClient(device.address) as client:
+        async with BleakClient(device) as client:
             print("Connected: " + str(client.is_connected))
             for service in client.services:
                 if HR_SERVICE_UUID == service.uuid:
                     hr_service = service
     else:
         print("No device found")
+
+    if hr_service is not None:
+        print(f"HR Service found! {hr_service}")
 
 # This is true only when the file is ran directly
 if __name__ == "__main__":
