@@ -2,7 +2,6 @@
 
 CREATE TABLE IF NOT EXISTS hr_readings (
     sample_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    bpm INTEGER,
-    FOREIGN KEY (timestamp) REFERENCES timestamps(timestamp)
+    timestamp TEXT NOT NULL,
+    bpm INTEGER NOT NULL
 )
