@@ -5,6 +5,7 @@ import storage_handler as storage
 HR_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 storage = storage.StorageHandler()
 
+
 def parse_hr_data(data: bytearray) -> int:
     flags = data[0]
     if flags & 0x01:
@@ -14,33 +15,43 @@ def parse_hr_data(data: bytearray) -> int:
 
 class HRListener:
     def __init__(self, client):
-        self.client = client  # the BLE connection (the pipe)
-        self.data = None      # filled later, when the watch pushes bytes
-        self._got_reading = asyncio.Event() # Flag to indicate that a reading has arrived
+        self.client = client
+        self.data = None
+        self._got_reading = asyncio.Event()
+        self._subscribed = False
 
     async def get_hr_data(self) -> int:
-        # Reset the "reading arrived" flag
         self._got_reading.clear()
 
-        # Subscribe: tell Bleak to call _on_hr when the watch pushes data
-        #     (this does NOT read HR yet — it only registers the listener)
-        await self.client.start_notify(
-            HR_MEASUREMENT_CHARACTERISTIC_UUID,
-            self._on_hr,
-        )
+        if not self._subscribed:
+            await self.client.start_notify(
+                HR_MEASUREMENT_CHARACTERISTIC_UUID,
+                self._on_hr,
+            )
+            self._subscribed = True
 
-        # Wait until the data reading arrives
         await self._got_reading.wait()
 
-        # Callback on_hr has populated the data, so we can return it and store the timestamp
-        storage.set_row(datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S"), self.data)
+        storage.set_row(
+            datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S"),
+            self.data,
+        )
         return self.data
 
-    # ------------------------------------------------------------------
-    # LINE B — Bleak calls this later.
-    # ------------------------------------------------------------------
     def _on_hr(self, sender, data: bytearray):
-        # BWatch sent `data` over BLE; Bleak hands it to us here
-        # Parse bytes → BPM and store
         self.data = parse_hr_data(data)
         self._got_reading.set()
+
+    async def stop(self):
+        """Detach BLE notify + disconnect so Ctrl+C does not leave Bleak callbacks running."""
+        if self._subscribed:
+            try:
+                await self.client.stop_notify(HR_MEASUREMENT_CHARACTERISTIC_UUID)
+            except Exception:
+                pass
+            self._subscribed = False
+        if self.client is not None and self.client.is_connected:
+            try:
+                await self.client.disconnect()
+            except Exception:
+                pass
