@@ -12,11 +12,15 @@ async def main():
 
     if hr_listener is not None:
         print(f"Connected to HR Service!")
-        print(data)
+        print(f"First reading: {data}")
 
     else:
         print("No HR Service found")
         return
+
+    while True:
+        data = await hr_listener.get_hr_data()
+        print(f"Reading: {data}")
 
 # This is true only when the file is ran directly
 if __name__ == "__main__":
