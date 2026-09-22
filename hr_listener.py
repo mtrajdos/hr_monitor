@@ -1,7 +1,9 @@
 import asyncio
+import datetime
+import storage_handler as storage
 
 HR_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
-
+storage = storage.StorageHandler()
 
 def parse_hr_data(data: bytearray) -> int:
     flags = data[0]
@@ -30,7 +32,8 @@ class HRListener:
         # Wait until the data reading arrives
         await self._got_reading.wait()
 
-        # Callback on_hr has populated the data, so we can return it
+        # Callback on_hr has populated the data, so we can return it and store the timestamp
+        storage.set_row(datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S"), self.data)
         return self.data
 
     # ------------------------------------------------------------------
@@ -40,5 +43,4 @@ class HRListener:
         # BWatch sent `data` over BLE; Bleak hands it to us here
         # Parse bytes → BPM and store
         self.data = parse_hr_data(data)
-        # Flip the flag so A3 can continue → A4
         self._got_reading.set()
