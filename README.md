@@ -20,6 +20,10 @@ Heart rate is delivered as **GATT notifications**, not a one-shot read. Flow in 
 3. Callback receives a `bytearray`, parses flags + BPM, unblocks the waiter
 4. Return the BPM (`int`)
 
+## Roadmap
+
+Step-by-step plan (persist → SQL windows → API → graphs → Docker/CI → hosting): see **[ROADMAP.md](ROADMAP.md)**.
+
 ## Direction
 
 Later, this is meant to become a **full-stack app** that shows **live** heart-rate (and related) data on screen.
