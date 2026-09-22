@@ -47,8 +47,7 @@ Optionally group rows into **sessions** (one BLE connect run = one window). Same
 - [x] Save on each reading from `hr_listener`  
 - [x] Schema `db/schema.sql` — `hr_readings(sample_id, timestamp, bpm)`  
 - [x] Data survives process exit (reopen DB → rows still there)  
-- [ ] CLI/script: print all readings between two local times (`scripts/query_window.py`)  
-- [ ] README: short “How data is stored” section  
+- [x] CLI/script: print all readings between two local times (`scripts/query_handler.py`)
 
 ### Scaffolding
 

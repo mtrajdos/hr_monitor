@@ -34,7 +34,7 @@ class HRListener:
         await self._got_reading.wait()
 
         storage.set_row(
-            datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S"),
+            datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S.%f")[:-3],
             self.data,
         )
         return self.data
