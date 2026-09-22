@@ -1,19 +1,19 @@
 import asyncio
 import scanner as sc
-import data_capturer as dc
+import hr_listener as hl
 import connection as conn
-
-HR_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb"
-HR_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 
 async def main():
     device = await sc.find_device()
     connection = conn.Connection(device)
-    
-    hr_service = await connection.connect_to_hr_service(HR_SERVICE_UUID)
+    client = await connection.connect_to_client()
+    hr_listener = hl.HRListener(client)
+    data = await hr_listener.get_hr_data()
 
-    if hr_service is not None:
+    if hr_listener is not None:
         print(f"Connected to HR Service!")
+        print(data)
+
     else:
         print("No HR Service found")
         return

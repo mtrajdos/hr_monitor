@@ -3,13 +3,15 @@ from bleak import BleakClient
 class Connection:
     def __init__(self, device):
         self.connected = False
-        self.connected_device = None
-        self.client = BleakClient(device)
+        self.device = device
+        self.client = None
 
-    async def connect_to_hr_service(self, HR_SERVICE_UUID):
+    async def connect_to_client(self):
+        print(f"Connecting to device: {self.device.name}")
+        self.client = BleakClient(self.device)
         await self.client.connect()
-        for service in self.client.services:
-            if HR_SERVICE_UUID == service.uuid:
-                hr_service = service
-                return hr_service
-        return None
+        if self.client.is_connected:
+            self.connected = True
+            return self.client
+        else:
+            return None
