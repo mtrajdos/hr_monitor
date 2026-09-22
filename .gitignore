@@ -4,13 +4,13 @@ __pycache__/
 *$py.class
 *.pyo
 
-# SQLite database and runtime sidecars (regenerated locally)
+# Local SQLite (under data/) + any stray sidecars
+data/*.db
+data/*.db-shm
+data/*.db-wal
 *.db
 *.db-shm
 *.db-wal
-MT_data.db
-MT_data.db-shm
-MT_data.db-wal
 
 # Env / local
 .env

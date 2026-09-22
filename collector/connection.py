@@ -1,5 +1,6 @@
 from bleak import BleakClient
 
+
 class Connection:
     def __init__(self, device):
         self.connected = False
@@ -13,5 +14,4 @@ class Connection:
         if self.client.is_connected:
             self.connected = True
             return self.client
-        else:
-            return None
+        return None

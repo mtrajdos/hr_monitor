@@ -1,6 +1,7 @@
 import asyncio
 import datetime
-import storage_handler as storage
+
+from collector import storage_handler as storage
 
 HR_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 storage = storage.StorageHandler()

@@ -1,7 +1,8 @@
 import asyncio
-import scanner as sc
-import hr_listener as hl
-import connection as conn
+
+from collector import connection as conn
+from collector import hr_listener as hl
+from collector import scanner as sc
 
 
 async def main():
@@ -25,7 +26,6 @@ async def main():
             data = await hr_listener.get_hr_data()
             print(f"Reading: {data}")
     except asyncio.CancelledError:
-        # Raised when the event loop is interrupted (e.g. Ctrl+C)
         pass
     finally:
         await hr_listener.stop()

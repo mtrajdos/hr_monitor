@@ -6,14 +6,16 @@ Prototype for reading heart-rate data from a Garmin Forerunner 55 over Bluetooth
 
 The app **scans** for a Forerunner 55, **connects** over BLE, then **subscribes** to the standard Heart Rate Measurement characteristic and prints BPM as notifications arrive.
 
-| File | Role |
+| Path | Role |
 | --- | --- |
 | `main.py` | Entry point: scan → connect → listen for HR readings in a loop |
-| `scanner.py` | BLE discovery via [Bleak](https://github.com/hbldh/bleak); returns the Forerunner 55 when found |
-| `connection.py` | Wraps `BleakClient`; connects to the scanned device |
-| `hr_listener.py` | Subscribes with `start_notify`, parses HR Measurement bytes into BPM |
+| `collector/scanner.py` | BLE discovery via [Bleak](https://github.com/hbldh/bleak); returns the Forerunner 55 when found |
+| `collector/connection.py` | Wraps `BleakClient`; connects to the scanned device |
+| `collector/hr_listener.py` | Subscribes with `start_notify`, parses HR Measurement bytes into BPM |
+| `collector/storage_handler.py` | Saves timestamped BPM rows to SQLite under `data/` |
+| `db/schema.sql` | SQLite table definition for `hr_readings` |
 
-Heart rate is delivered as **GATT notifications**, not a one-shot read. Flow in `hr_listener.py`:
+Heart rate is delivered as **GATT notifications**, not a one-shot read. Flow in `collector/hr_listener.py`:
 
 1. `start_notify` — register a callback for characteristic `00002a37-…`
 2. Wait until the watch pushes a packet
@@ -22,7 +24,37 @@ Heart rate is delivered as **GATT notifications**, not a one-shot read. Flow in 
 
 ## Roadmap
 
-Step-by-step plan (persist → SQL windows → API → graphs → Docker/CI → hosting): see **[ROADMAP.md](ROADMAP.md)**.
+Phases (persist → SQL windows → API → graphs → Docker/CI → hosting): **[ROADMAP.md](ROADMAP.md)**.
+
+## Project structure
+
+Repo root keeps `README.md`, `ROADMAP.md`, `.gitignore`, and `main.py`.  
+**Backend:** `collector/` (BLE ingest), `db/` (schema / later SQLAlchemy), `api/` (FastAPI).  
+**Frontend:** `web/` (charts by date).  
+**Other:** `data/` (local SQLite, gitignored), `tests/`, `scripts/`.  
+No `src/` for now — optional later if we package the app.
+
+```text
+HR_monitor/
+├── .gitignore
+├── README.md
+├── ROADMAP.md
+├── main.py
+├── data/                   # local *.db only (gitignored)
+├── collector/
+│   ├── scanner.py
+│   ├── connection.py
+│   ├── hr_listener.py
+│   └── storage_handler.py
+├── db/
+│   └── schema.sql
+├── api/
+│   └── routes/
+├── web/
+│   └── static/
+├── tests/
+└── scripts/
+```
 
 ## Direction
 
