@@ -1,6 +1,6 @@
 from bleak import BleakScanner
 
-async def scan_for_devices():
+async def find_device():
     print("Scanning for Bluetooth devices for 10 seconds...")
 
     # Wait until the scanner finishes, then store whatever devices it found
