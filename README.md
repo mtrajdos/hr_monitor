@@ -54,7 +54,7 @@ HR_monitor/
 ├── README.md
 ├── ROADMAP.md
 ├── main.py
-├── data/                   # local HR_data.db (gitignored)
+├── data/
 ├── collector/
 │   ├── config.py
 │   ├── scanner.py
