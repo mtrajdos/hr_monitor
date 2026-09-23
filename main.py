@@ -11,6 +11,7 @@ from scripts import query_handler as qh
 async def main():
     hr_listener = None
     data_points = []
+    query_handler = qh.QueryHandler()
     try:
         print("Welcome to the HR Monitor. Please choose an option:")
         print("1. Record new HR data")
@@ -49,7 +50,6 @@ async def main():
             try:
                 start_time = input("Start time: ")
                 end_time = input("End time: ")
-                query_handler = qh.QueryHandler()
                 rows = query_handler.get_selected_rows(start_time, end_time)
                 print(f"Found {len(rows)} rows")
 

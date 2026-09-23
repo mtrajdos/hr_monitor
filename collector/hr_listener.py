@@ -1,11 +1,10 @@
 import asyncio
 import datetime
-
+from collector import session as se
 from collector import storage_handler as storage
 
 HR_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
-storage = storage.StorageHandler()
-
+session = se.Session()
 
 def parse_hr_data(data: bytearray) -> int:
     flags = data[0]
@@ -30,13 +29,10 @@ class HRListener:
                 self._on_hr,
             )
             self._subscribed = True
+            session.start()
 
         await self._got_reading.wait()
-
-        storage.set_row(
-            datetime.datetime.now().strftime("%d-%b-%y %H:%M:%S.%f")[:-3],
-            self.data,
-        )
+        session.add_row(self.data)
         return self.data
 
     def _on_hr(self, sender, data: bytearray):
@@ -51,6 +47,7 @@ class HRListener:
             except Exception:
                 pass
             self._subscribed = False
+            session.stop_and_save()
         if self.client is not None and self.client.is_connected:
             try:
                 await self.client.disconnect()

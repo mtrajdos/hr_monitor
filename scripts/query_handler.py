@@ -4,7 +4,7 @@ from collector import config
 
 class QueryHandler:
     def __init__(self, db_path: Path | None = None):
-        self.db_path = db_path or (config._ROOT / "data" / "MT_data.db")
+        self.db_path = db_path or (config._ROOT / "data" / "HR_data.db")
         self.db = sqlite3.connect(self.db_path)
 
     def get_selected_rows(self, start_time: str, end_time: str):

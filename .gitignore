@@ -4,15 +4,11 @@ __pycache__/
 *$py.class
 *.pyo
 
-# Local SQLite (under data/) + any stray sidecars
-data/*.db
+# DB connection files (SQLite)
 data/*.db-shm
 data/*.db-wal
-*.db
-*.db-shm
-*.db-wal
 
-# Env / local
+# Environment variables
 .env
 .venv/
 venv/
