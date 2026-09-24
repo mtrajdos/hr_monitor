@@ -54,7 +54,7 @@ async def main():
                 print(f"Found {len(rows)} rows")
 
                 for row in rows:
-                    data_points.append([row[1].split(" ")[1], row[2]])
+                    data_points.append([row[2].split(" ")[1], row[3]])
 
                 x_times = [x[0] for x in data_points]
                 y_hr = [x[1] for x in data_points]
