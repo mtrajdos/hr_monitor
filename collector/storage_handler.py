@@ -13,7 +13,7 @@ class StorageHandler:
         self.db.executescript(sql)
         self.db.commit()
 
-    def set_row(self, session_id: str, timestamp: str, bpm: int):
+    def write_hr_reading_to_db(self, session_id: str, timestamp: str, bpm: int):
         self.db.execute(
             "INSERT INTO hr_readings (session_id, timestamp, bpm) VALUES (?, ?, ?)",
             (session_id, timestamp, bpm),

@@ -50,7 +50,7 @@ async def main():
             try:
                 start_time = input("Start time: ")
                 end_time = input("End time: ")
-                rows = query_handler.get_selected_rows(start_time, end_time)
+                rows = query_handler.get_rows_between_times(start_time, end_time)
                 print(f"Found {len(rows)} rows")
 
                 for row in rows:
