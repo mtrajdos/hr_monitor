@@ -15,26 +15,28 @@ The app offers a simple CLI menu:
 | `collector/scanner.py` | BLE discovery via [Bleak](https://github.com/hbldh/bleak); returns the Forerunner 55 when found |
 | `collector/connection.py` | Wraps `BleakClient`; connects to the scanned device |
 | `collector/hr_listener.py` | Subscribes with `start_notify`, parses HR Measurement bytes into BPM |
-| `collector/session.py` | Groups one connect/subscribe run under a UUID `session_id`; writes start/end markers and readings |
+| `collector/session.py` | One UUID `session_id` per recording run; stamped on every reading row |
 | `collector/storage_handler.py` | Inserts rows into SQLite at `data/HR_data.db` |
 | `collector/config.py` | Paths for data dir, DB, and schema |
-| `db/schema.sql` | SQLite table definition for `hr_readings` |
+| `db/schema.sql` | SQLite table `hr_readings(sample_id, session_id, timestamp, bpm)` |
 | `scripts/query_handler.py` | Time-range `SELECT` against `hr_readings` |
+
+### Sessions
+
+A **session** is one BLE connect → record → disconnect run. It is identified only by a UUID `session_id` on each `hr_readings` row.
 
 ### Recording flow
 
 Heart rate is delivered as **GATT notifications**, not a one-shot read:
 
 1. Enable HR broadcast on the watch, then wait for the connect countdown
-2. `start_notify` on characteristic `00002a37-…` and start a session (`session_id` UUID)
-3. Each notification is parsed to BPM, printed, and stored with timestamp `dd-Mon-yy HH:MM:SS.mmm`
-4. On stop (`Ctrl+C`), the listener unsubscribes, writes a session end marker (`bpm` NULL), and disconnects
-
-Session start/end rows use the same `session_id` with `bpm` NULL; actual readings have integer BPM.
+2. `start_notify` on characteristic `00002a37-…`; a new `session_id` UUID is created for the run
+3. Each notification is parsed to BPM, printed, and stored with that `session_id` and timestamp `dd-Mon-yy HH:MM:SS.mmm`
+4. On stop (`Ctrl+C`), the listener unsubscribes and disconnects.
 
 ### Query flow
 
-Enter start and end times matching stored timestamps, e.g. `22-Sep-26 14:53:21.029` (seconds optional depending on your filter strings). Matching rows are plotted with Plotly Express.
+Enter start and end times matching stored timestamps, e.g. `22-Sep-26 14:53:21.029` (seconds optional depending on your filter strings). Matching rows are plotted with Plotly Express. You can also filter by `session_id` in SQL when you want one recording only.
 
 ## Roadmap
 
